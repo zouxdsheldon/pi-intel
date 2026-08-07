@@ -1,0 +1,56 @@
+name: Update PI intelligence
+
+# 每周一次就够:PI 的方向指纹是多年尺度的量,天级刷新只会制造无意义的 diff。
+# 语料(data/papers.json)由姊妹站 pi-grants 每天更新,这里在跑之前拉一份最新的。
+on:
+  schedule:
+    - cron: '0 12 * * 1'      # 每周一 12:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # 语料是上游产物,不在本仓库生成。拉不到就沿用仓库里已有的那份,
+      # 而不是让整轮任务失败 —— 旧语料算出来的指纹仍然有效,只是不够新。
+      - name: Pull latest corpus from sister site
+        run: |
+          curl -fsSL --max-time 120 \
+            https://zouxdsheldon.github.io/pi-grants/data/papers.json \
+            -o /tmp/papers.json && \
+          python -c "import json,sys; d=json.load(open('/tmp/papers.json')); \
+                     assert len(d['papers'])>200, 'corpus too small'; \
+                     print('corpus', len(d['papers']))" && \
+          cp /tmp/papers.json data/papers.json \
+          || echo "corpus pull failed — keeping the copy already in the repo"
+
+      - name: Fetch PI portfolios from Europe PMC
+        # 有墙钟预算:连接挂起时写出已抓部分,不把定时任务拖死
+        run: python scripts/fetch_pis.py --limit 90 --budget 1500 --workers 4 --max-records 200
+             || echo "PI fetch failed — keeping previous handoff/pi_fetch.json"
+
+      - name: Compute fingerprints / trajectories / competition metrics
+        run: python scripts/analyze_pis.py || echo "analysis failed, keeping previous data/pis.json"
+
+      - name: Front-end behaviour tests (all real PI records)
+        run: python tests/run_ui_tests.py || echo "UI tests failed — data still published, check the log"
+
+      - name: Commit if changed
+        run: |
+          git config user.name  "pi-intel-bot"
+          git config user.email "pi-intel-bot@users.noreply.github.com"
+          git add data/pis.json data/papers.json handoff/pi_fetch.json handoff/pi_seed.json
+          if git diff --staged --quiet; then
+            echo "No changes."
+          else
+            git commit -m "Auto-update PI intelligence ($(date -u +%Y-%m-%d))"
+            git push
+          fi

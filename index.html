@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PI 情报 · 谁在做我的方向</title>
+<style>
+:root{
+  --tdmd:#4A148C; --ampk:#0D47A1; --ink:#1A1D23; --dim:#6B7280; --faint:#8892A4;
+  --line:#E3E7EE; --bg:#F7F8FB; --card:#FFFFFF;
+  --hot:#C62828; --warm:#EF6C00; --cool:#00695C; --grey:#9AA3B2;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--ampk);text-decoration:none}
+a:hover{text-decoration:underline}
+header{background:linear-gradient(135deg,#4A148C,#0D47A1);color:#fff;padding:26px 20px 22px}
+.wrap{max-width:1280px;margin:0 auto;padding:0 20px}
+header h1{margin:0 0 6px;font-size:22px;letter-spacing:.3px}
+header p{margin:0;opacity:.9;font-size:13px}
+.hstat{display:flex;gap:22px;margin-top:14px;flex-wrap:wrap}
+.hstat div{font-size:12px;opacity:.88}
+.hstat b{display:block;font-size:19px;opacity:1;font-weight:700}
+nav{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40}
+nav .wrap{display:flex;gap:2px;overflow-x:auto}
+nav button{background:none;border:none;padding:13px 15px;font-size:13.5px;color:var(--dim);
+  cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;font-family:inherit}
+nav button:hover{color:var(--ink);background:#FAFBFD}
+nav button.on{color:var(--tdmd);border-bottom-color:var(--tdmd);font-weight:600}
+main{padding:22px 0 60px}
+.panel{display:none}
+.panel.on{display:block}
+.note{background:#FFF9E6;border:1px solid #F2DFA0;border-radius:8px;padding:11px 14px;
+  font-size:12.5px;color:#6B5300;margin-bottom:14px;line-height:1.65}
+.note.blue{background:#F0F7FF;border-color:#BAD3F1;color:#123A66}
+.note.red{background:#FFF3F2;border-color:#F0C0BC;color:#7B2018}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.bar input[type=search],.bar select{border:1px solid var(--line);border-radius:7px;
+  padding:7px 10px;font-size:13px;font-family:inherit;background:#fff;color:var(--ink)}
+.bar input[type=search]{min-width:220px;flex:1;max-width:340px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;
+  font-size:12.5px;cursor:pointer;color:var(--dim);font-family:inherit}
+.chip.on{background:var(--tdmd);border-color:var(--tdmd);color:#fff}
+.btn{border:1px solid var(--tdmd);background:#fff;color:var(--tdmd);border-radius:7px;
+  padding:7px 13px;font-size:12.5px;cursor:pointer;font-family:inherit}
+.btn:hover{background:#F6F0FA}
+.btn.solid{background:var(--tdmd);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 15px}
+.card h3{margin:0 0 3px;font-size:15.5px}
+.sub{color:var(--faint);font-size:12px;margin-bottom:9px}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin:7px 0}
+.tag{font-size:11px;padding:2px 7px;border-radius:11px;background:#F0F2F6;color:var(--dim)}
+.tag.r-low{background:#E6F4EA;color:#1B5E20}
+.tag.r-medium{background:#FFF4E5;color:#8A4B00}
+.tag.r-high{background:#FDE8E6;color:#8E1B12}
+.mets{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:9px 0}
+.met{background:#FAFBFD;border:1px solid var(--line);border-radius:7px;padding:6px 8px;text-align:center}
+.met b{display:block;font-size:16px;line-height:1.2}
+.met span{font-size:10.5px;color:var(--faint)}
+.met.na b{color:var(--grey);font-size:12.5px;padding-top:3px}
+.fp{display:flex;height:9px;border-radius:5px;overflow:hidden;background:#EEF1F5;margin:8px 0 4px}
+.fp i{display:block;height:100%}
+.fplab{display:flex;gap:8px;flex-wrap:wrap;font-size:10.5px;color:var(--faint)}
+.fplab i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:3px;vertical-align:-1px}
+details{margin-top:8px;border-top:1px solid var(--line);padding-top:7px}
+details summary{cursor:pointer;font-size:12.5px;color:var(--tdmd);outline:none}
+details[open] summary{font-weight:600;margin-bottom:7px}
+.ev{font-size:12px;color:#3A4150;line-height:1.7}
+.ev table{width:100%;border-collapse:collapse;font-size:11.5px;margin:5px 0}
+.ev th,.ev td{border:1px solid var(--line);padding:4px 6px;text-align:left;vertical-align:top}
+.ev th{background:#F5F6FA;font-weight:600;color:var(--dim)}
+.ev code{background:#F2F3F7;padding:1px 4px;border-radius:3px;font-size:11px}
+.muted{color:var(--faint);font-size:11.5px}
+svg{display:block;max-width:100%;height:auto}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.excl{font-size:12px}
+.excl table{width:100%;border-collapse:collapse}
+.excl th,.excl td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left}
+.excl th{background:#F5F6FA;color:var(--dim);font-weight:600;font-size:11.5px}
+.excl tr{color:var(--dim)}
+.pill{font-size:10.5px;padding:1px 6px;border-radius:9px;background:#F0F2F6;color:var(--dim)}
+footer{border-top:1px solid var(--line);padding:18px 0;color:var(--faint);font-size:12px;background:#fff}
+@media(max-width:700px){.cmp{grid-template-columns:1fr}.mets{grid-template-columns:1fr 1fr 1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>🧭 PI 情报 · 谁在做我的方向</h1>
+    <p>从站内 <b id="hCorpus">—</b> 篇文献里抽出资深作者,再用 Europe PMC 补全作品集 ——
+       方向指纹、竞争/互补象限、轨迹漂移,<b>全部离线可核验,零大模型调用</b>。</p>
+    <div class="hstat">
+      <div><b id="hPI">—</b>已建档 PI</div>
+      <div><b id="hExcl">—</b>因同名被排除</div>
+      <div><b id="hRec">—</b>作品集记录</div>
+      <div><b id="hUpd">—</b>数据更新</div>
+    </div>
+  </div>
+</header>
+
+<nav><div class="wrap">
+  <button class="on" data-p="board">📋 PI 榜单</button>
+  <button data-p="quad">🎯 竞争-互补象限</button>
+  <button data-p="drift">📈 轨迹漂移</button>
+  <button data-p="cmp">⚖️ 两人对比</button>
+  <button data-p="excl">⚠️ 同名排除名单</button>
+  <button data-p="how">📖 算法与局限</button>
+</div></nav>
+
+<main class="wrap">
+
+<!-- ============ 榜单 ============ -->
+<section class="panel on" id="p-board">
+  <div class="note" id="riskNote">—</div>
+  <div class="bar">
+    <input type="search" id="q" placeholder="搜姓名 / 单位 / 方法…">
+    <select id="sortSel">
+      <option value="competition">按竞争度排</option>
+      <option value="collab">按合作可能排</option>
+      <option value="complement">按互补度排</option>
+      <option value="n_records">按作品集规模排</option>
+      <option value="drift">按方向漂移排</option>
+    </select>
+    <select id="dirSel"><option value="">全部方向</option></select>
+    <select id="regSel"><option value="">全部地区</option></select>
+    <button class="chip" id="cAnch">仅看有锚定证据的</button>
+    <button class="chip" id="cMeas">仅看三项指标都可测的</button>
+    <button class="btn" id="expCsv">⬇ 导出 CSV</button>
+    <span class="muted" id="cnt">—</span>
+  </div>
+  <div class="grid" id="board"></div>
+</section>
+
+<!-- ============ 象限 ============ -->
+<section class="panel" id="p-quad">
+  <div class="note blue">
+    横轴 <b>竞争度</b> = 该 PI 方向指纹与你申报方向权重的余弦;纵轴 <b>互补度</b> =
+    他掌握、而站内语料稀缺的方法占比。<b>点的面积</b> = 作品集篇数。
+    右上 = 强手且带新方法(既是对手也是最值得合作/请他写推荐信的人);
+    右下 = 正面竞争、方法同质(直接对手);左上 = 方法互补但赛道不同(跨界合作);
+    左下 = 关联弱。互补度不可测的 PI 不在图内(见图下说明)。
+  </div>
+  <div class="card" id="quadBox"></div>
+</section>
+
+<!-- ============ 漂移 ============ -->
+<section class="panel" id="p-drift">
+  <div class="note blue">
+    每条面积图 = 该 PI 逐年方向占比。漂移角 = 近 3 年方向向量与前 3 年向量的夹角,
+    <b>两侧各不足 3 篇则不计算</b> —— 1 篇文章算不出趋势。
+  </div>
+  <div id="driftList"></div>
+</section>
+
+<!-- ============ 对比 ============ -->
+<section class="panel" id="p-cmp">
+  <div class="bar">
+    <select id="cmpA"></select>
+    <select id="cmpB"></select>
+  </div>
+  <div class="cmp" id="cmpBox"></div>
+</section>
+
+<!-- ============ 排除名单 ============ -->
+<section class="panel" id="p-excl">
+  <div class="note red" id="exclNote">—</div>
+  <div class="card excl" id="exclBox"></div>
+</section>
+
+<!-- ============ 说明 ============ -->
+<section class="panel" id="p-how">
+  <div class="card" id="howBox"></div>
+</section>
+
+</main>
+<footer><div class="wrap">
+  数据源:站内文献语料 + <a href="https://europepmc.org" target="_blank" rel="noopener">Europe PMC</a>(免 API key)。
+  不使用 Google Scholar(无官方 API)、不使用 JCR 影响因子(版权数据)、不调用任何大语言模型。
+  <span id="fUpd"></span>
+</div></footer>
+<script>
+/* ============================================================
+   PI 情报 —— 全部计算在浏览器里跑,数据来自同源 data/pis.json。
+   没有后端、没有模型调用:页面上每个数字都能在 scripts/ 里找到产生它的那几行。
+   ============================================================ */
+var PIS=[], EXCL=[], META={}, IDS=[], NAMES={}, COLORS={}, MINE={};
+var F={q:"",dir:"",reg:"",anch:false,meas:false,sort:"competition"};
+var NOTES={};   // 合作/竞争备注,存 localStorage
+
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function pct(x){return x==null?"—":(x*100).toFixed(0)+"%";}
+function num(x,d){return x==null?"—":Number(x).toFixed(d==null?2:d);}
+
+/* ---------- 方向指纹条:把 fp 向量画成一条彩色比例条 ---------- */
+function fpBar(fp){
+  var tot=0; IDS.forEach(function(k){tot+=(fp[k]||0);});
+  if(tot<=0) return '<div class="muted">该作品集未命中任何方向词表</div>';
+  var seg=IDS.filter(function(k){return (fp[k]||0)/tot>0.02;})
+             .sort(function(a,b){return fp[b]-fp[a];});
+  var bar=seg.map(function(k){
+    return '<i style="width:'+((fp[k]/tot)*100).toFixed(1)+'%;background:'+COLORS[k]+'" title="'+
+           esc(NAMES[k])+' '+pct(fp[k]/tot)+'"></i>';}).join("");
+  var lab=seg.slice(0,4).map(function(k){
+    return '<span><i style="background:'+COLORS[k]+'"></i>'+esc(NAMES[k].split(/[ /:]/)[0])+
+           ' '+pct(fp[k]/tot)+'</span>';}).join("");
+  return '<div class="fp">'+bar+'</div><div class="fplab">'+lab+'</div>';
+}
+
+/* ---------- 证据抽屉 ---------- */
+function evTop(p){
+  if(!p.top_papers.length) return '<div class="muted">无记录</div>';
+  return '<table><tr><th>年</th><th>标题</th><th>期刊</th><th>分</th><th>锚定</th></tr>'+
+    p.top_papers.slice(0,8).map(function(r){
+      return '<tr><td>'+(r.year||"—")+'</td><td><a href="'+esc(r.url)+'" target="_blank" rel="noopener">'+
+        esc(r.title)+'</a>'+(r.hits&&r.hits.length?'<br><span class="muted">命中:'+
+        r.hits.map(esc).join("、")+'</span>':'')+'</td><td>'+esc(r.journal||"—")+
+        (r.tier?' <span class="pill">'+r.tier+'</span>':'')+'</td><td>'+num(r.score)+
+        '</td><td>'+(r.anchored?'✔':'—')+'</td></tr>';}).join("")+'</table>';
+}
+function evMet(p){
+  var h='<table><tr><th>指标</th><th>值</th><th>怎么算的</th></tr>';
+  h+='<tr><td>竞争度</td><td>'+num(p.competition)+'</td><td>方向指纹与你的方向权重向量的余弦。'+
+     '贡献最大的方向:'+(p.competition_top||[]).slice(0,3).map(function(t){
+       return esc((NAMES[t[0]]||t[0]).split(/[ /:]/)[0])+' '+num(t[1],3);}).join("、")+'</td></tr>';
+  var cp=p.complement_parts||{};
+  h+='<tr><td>互补度</td><td>'+(p.complement==null?'<span class="muted">不可测</span>':num(p.complement))+
+     '</td><td>'+(p.complement==null
+       ? esc(cp.note||"方法样本不足")
+       : '稀缺方法 '+cp.n_rare+' / 检出方法 '+cp.n_methods+
+         '。稀缺阈值 = 语料方法词频中位数 '+num(cp.cut,4)+'(不是拍脑袋的 5%)')+'</td></tr>';
+  h+='<tr><td>合作可能</td><td>'+(p.collab==null?'<span class="muted">不可测</span>':num(p.collab))+
+     '</td><td>互补度 × 竞争惩罚;竞争度 &gt;0.55 后线性压分,&gt;0.90 归零 —— 高度重叠在现实里是抢课题不是合作</td></tr>';
+  if(p.rare_methods&&p.rare_methods.length)
+    h+='<tr><td>稀缺方法</td><td colspan="2">'+p.rare_methods.map(function(m){
+      return '<code>'+esc(m.method)+'</code> <span class="muted">(他 '+m.pi_n+' 次 / 语料占比 '+
+      pct(m.corpus_share)+')</span>';}).join("、")+'</td></tr>';
+  return h+'</table>';
+}
+function evRisk(p){
+  var h='<div class="ev"><b>同名风险:'+esc(p.risk)+'</b>(评分 '+num(p.risk_score,2)+')<ul>';
+  (p.risk_reasons||[]).forEach(function(r){h+='<li>'+esc(r)+'</li>';});
+  h+='</ul><p>Europe PMC 该姓名串命中:领域内 <b>'+p.epmc_hit_domain+'</b> 篇 / 全库 <b>'+
+     p.epmc_hit_total+'</b> 篇。全库数越大,说明这个姓名串对应的人越多。</p>';
+  h+='<p>合作者锚定:'+p.n_anchored+' / '+p.n_records+' 篇的作者里出现了语料中已知的可区分合作者'+
+     '(锚定池 '+p.anchor_pool+' 人)。<b>未锚定不等于不是本人</b> —— 只说明这条记录没有独立证据支持归属。</p>';
+  if(p.n_anchored===0)
+    h+='<p class="muted">本人 0 篇锚定:要么语料里他的合作者都是高频姓名(无法用作锚点),要么作品集确实混入了同名者。指纹请谨慎采信。</p>';
+  return h+'</div>';
+}
+function evHead(p){
+  if(!p.head_on||!p.head_on.length)
+    return '<div class="muted">与旗舰方向(AMPK × ZSWIM8/TDMD × 代谢记忆)无正面撞车记录。'+
+           '注意这是<b>词表匹配</b>,只覆盖标题与摘要,不代表他一定没在做。</div>';
+  return '<div class="ev"><b>与旗舰方向可能撞车的 '+p.head_on.length+' 篇:</b><ul>'+
+    p.head_on.map(function(h){
+      return '<li><a href="'+esc(h.url)+'" target="_blank" rel="noopener">'+esc(h.title)+'</a> · '+
+        (h.year||"—")+' · '+esc(h.journal||"")+'<br><span class="muted">命中词:'+
+        h.terms.map(esc).join("、")+(h.anchored?' · 已锚定':' · 未锚定')+'</span></li>';}).join("")+
+    '</ul></div>';
+}
+
+/* ---------- 卡片 ---------- */
+function card(p){
+  var inst=(p.institutions&&p.institutions.length)?p.institutions[0].name:"";
+  var d=p.drift||{};
+  var h='<div class="card" data-k="'+esc(p.key)+'">';
+  h+='<h3>'+esc(p.display)+'</h3>';
+  h+='<div class="sub">'+esc(inst||"单位未解析")+(p.region?' · '+esc(p.region):'')+
+     ' · 作品集 '+p.n_records+' 篇 · 语料内末位作者 '+p.corpus_n_last+' 篇</div>';
+  h+='<div class="tags"><span class="tag r-'+p.risk+'">同名风险 '+p.risk+'</span>';
+  if(p.n_anchored>0) h+='<span class="tag">锚定 '+p.n_anchored+'/'+p.n_records+'</span>';
+  else h+='<span class="tag r-high">无锚定证据</span>';
+  if(d.deg!=null) h+='<span class="tag">漂移 '+d.deg+'°</span>';
+  h+='</div>';
+  h+=fpBar(p.fp);
+  h+='<div class="mets">'+
+     '<div class="met"><b>'+num(p.competition)+'</b><span>竞争度</span></div>'+
+     (p.complement==null?'<div class="met na"><b>不可测</b><span>互补度</span></div>'
+       :'<div class="met"><b>'+num(p.complement)+'</b><span>互补度</span></div>')+
+     (p.collab==null?'<div class="met na"><b>不可测</b><span>合作可能</span></div>'
+       :'<div class="met"><b>'+num(p.collab)+'</b><span>合作可能</span></div>')+
+     '</div>';
+  h+='<details><summary>🔎 指标怎么来的</summary><div class="ev">'+evMet(p)+'</div></details>';
+  h+='<details><summary>📄 代表作(按方向分排)</summary><div class="ev">'+evTop(p)+'</div></details>';
+  h+='<details><summary>⚠️ 同名风险与锚定证据</summary>'+evRisk(p)+'</details>';
+  h+='<details><summary>🎯 与旗舰方向的撞车检查</summary>'+evHead(p)+'</details>';
+  h+='<details><summary>📝 我的备注</summary><textarea data-note="'+esc(p.key)+'" '+
+     'style="width:100%;min-height:60px;border:1px solid var(--line);border-radius:6px;'+
+     'padding:6px;font:inherit;font-size:12px" placeholder="合作切入点 / 竞争风险 / 会议见过…">'+
+     esc(NOTES[p.key]||"")+'</textarea><div class="muted">存在本机浏览器,不上传</div></details>';
+  return h+'</div>';
+}
+
+/* ---------- 筛选与排序 ---------- */
+function pass(p){
+  if(F.anch && !(p.n_anchored>0)) return false;
+  if(F.meas && (p.complement==null||p.collab==null)) return false;
+  if(F.reg && p.region!==F.reg) return false;
+  if(F.dir){
+    var tot=0; IDS.forEach(function(k){tot+=(p.fp[k]||0);});
+    if(!(tot>0 && (p.fp[F.dir]||0)/tot >= 0.15)) return false;
+  }
+  if(F.q){
+    var q=F.q.toLowerCase();
+    var hay=(p.display+" "+(p.region||"")+" "+
+      (p.institutions||[]).map(function(i){return i.name;}).join(" ")+" "+
+      (p.methods||[]).map(function(m){return m.m;}).join(" ")).toLowerCase();
+    if(hay.indexOf(q)<0) return false;
+  }
+  return true;
+}
+function sortKey(p){
+  if(F.sort==="drift") return (p.drift&&p.drift.deg!=null)?p.drift.deg:-1;
+  var v=p[F.sort];
+  return v==null?-1:v;
+}
+function renderBoard(){
+  var list=PIS.filter(pass).sort(function(a,b){return sortKey(b)-sortKey(a);});
+  document.getElementById("board").innerHTML=
+    list.length?list.map(card).join(""):'<div class="card muted">没有符合条件的 PI。</div>';
+  document.getElementById("cnt").textContent="显示 "+list.length+" / "+PIS.length+" 位";
+  wireNotes();
+}
+function wireNotes(){
+  Array.prototype.forEach.call(document.querySelectorAll("[data-note]"),function(t){
+    t.onchange=function(){
+      NOTES[t.getAttribute("data-note")]=t.value;
+      try{localStorage.setItem("pi_notes",JSON.stringify(NOTES));}catch(e){}
+    };});
+}
+
+/* ============ 竞争-互补象限图(内联 SVG,前端实时算) ============ */
+function renderQuad(){
+  var W=880,H=520,M={t:22,r:26,b:52,l:62};
+  var pw=W-M.l-M.r, ph=H-M.t-M.b;
+  var pts=PIS.filter(function(p){return p.complement!=null;});
+  var skipped=PIS.length-pts.length;
+  if(!pts.length){document.getElementById("quadBox").innerHTML=
+    '<div class="muted">没有互补度可测的 PI,无法作图。</div>';return;}
+  var xs=pts.map(function(p){return p.competition;});
+  var x0=Math.min.apply(null,xs), x1=Math.max.apply(null,xs);
+  if(x1-x0<0.05){x0-=0.03;x1+=0.03;}
+  var X=function(v){return M.l+((v-x0)/(x1-x0))*pw;};
+  var Y=function(v){return M.t+ph-(v/1)*ph;};
+  var nmax=Math.max.apply(null,pts.map(function(p){return p.n_records;}));
+  var R=function(n){return 4+Math.sqrt(n/nmax)*13;};
+  var xmid=(x0+x1)/2, ymid=0.5;
+
+  var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="竞争度与互补度象限图">';
+  s+='<rect x="'+M.l+'" y="'+M.t+'" width="'+pw+'" height="'+ph+'" fill="#FCFDFF" stroke="#E3E7EE"/>';
+  /* 象限底色与标签 */
+  s+='<line x1="'+X(xmid)+'" y1="'+M.t+'" x2="'+X(xmid)+'" y2="'+(M.t+ph)+'" stroke="#D8DEE8" stroke-dasharray="4 3"/>';
+  s+='<line x1="'+M.l+'" y1="'+Y(ymid)+'" x2="'+(M.l+pw)+'" y2="'+Y(ymid)+'" stroke="#D8DEE8" stroke-dasharray="4 3"/>';
+  var qlab=[["强手 + 新方法\n值得合作 / 请写推荐信",X(xmid)+8,M.t+16,"start","#00695C"],
+            ["方法互补但赛道不同\n跨界合作",M.l+8,M.t+16,"start","#0D47A1"],
+            ["正面竞争 + 方法同质\n直接对手",X(xmid)+8,M.t+ph-24,"start","#C62828"],
+            ["关联弱",M.l+8,M.t+ph-12,"start","#8892A4"]];
+  qlab.forEach(function(q){
+    q[0].split("\n").forEach(function(ln,i){
+      s+='<text x="'+q[1]+'" y="'+(q[2]+i*13)+'" font-size="11" fill="'+q[4]+
+         '" text-anchor="'+q[3]+'" opacity="0.75">'+esc(ln)+'</text>';});});
+  /* 轴 */
+  for(var i=0;i<=4;i++){
+    var xv=x0+(x1-x0)*i/4;
+    s+='<text x="'+X(xv)+'" y="'+(M.t+ph+16)+'" font-size="11" fill="#6B7280" text-anchor="middle">'+
+       xv.toFixed(2)+'</text>';
+    var yv=i/4;
+    s+='<text x="'+(M.l-8)+'" y="'+(Y(yv)+4)+'" font-size="11" fill="#6B7280" text-anchor="end">'+
+       yv.toFixed(2)+'</text>';
+  }
+  s+='<text x="'+(M.l+pw/2)+'" y="'+(H-14)+'" font-size="12.5" fill="#1A1D23" text-anchor="middle">竞争度(方向指纹 vs 我的方向权重,余弦)→</text>';
+  s+='<text transform="translate(16,'+(M.t+ph/2)+') rotate(-90)" font-size="12.5" fill="#1A1D23" text-anchor="middle">互补度(稀缺方法占比)→</text>';
+  /* 点 —— 主色取该 PI 指纹里占比最高的方向 */
+  pts.sort(function(a,b){return b.n_records-a.n_records;}).forEach(function(p){
+    var tot=0; IDS.forEach(function(k){tot+=(p.fp[k]||0);});
+    var top=IDS.slice().sort(function(a,b){return (p.fp[b]||0)-(p.fp[a]||0);})[0];
+    var col=(tot>0?COLORS[top]:"#9AA3B2");
+    var cx=X(p.competition), cy=Y(p.complement), r=R(p.n_records);
+    s+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+r.toFixed(1)+
+       '" fill="'+col+'" fill-opacity="'+(p.n_anchored>0?0.62:0.22)+'" stroke="'+col+
+       '" stroke-width="'+(p.n_anchored>0?1.2:1)+'"'+(p.n_anchored>0?'':' stroke-dasharray="2 2"')+'>'+
+       '<title>'+esc(p.display)+'\n竞争度 '+num(p.competition)+' · 互补度 '+num(p.complement)+
+       '\n作品集 '+p.n_records+' 篇 · 锚定 '+p.n_anchored+'\n'+esc(NAMES[top]||"")+'</title></circle>';
+    if(r>=9||p.competition>0.75)
+      s+='<text x="'+(cx+r+3).toFixed(1)+'" y="'+(cy+3.5).toFixed(1)+
+         '" font-size="10.5" fill="#3A4150">'+esc(p.display)+'</text>';
+  });
+  s+='</svg>';
+  var leg='<div class="fplab" style="margin-top:10px">'+IDS.map(function(k){
+    return '<span><i style="background:'+COLORS[k]+'"></i>'+esc(NAMES[k])+'</span>';}).join("")+'</div>';
+  var cav='<div class="muted" style="margin-top:8px">'+
+    '点面积 = 作品集篇数;<b>实心</b> = 有合作者锚定证据,<b>虚线空心</b> = 无锚定证据(归属未经独立验证,位置仅供参考)。'+
+    '另有 <b>'+skipped+'</b> 位 PI 因检出方法少于 '+(META.min_methods_for_complement||4)+
+    ' 个、互补度不可测而未画入 —— 那是<b>没测到</b>,不是互补度为零。</div>';
+  document.getElementById("quadBox").innerHTML=s+leg+cav;
+}
+
+/* ============ 轨迹面积图 ============ */
+function trajSvg(p){
+  var W=760,H=140,M={t:12,r:12,b:26,l:34};
+  var pw=W-M.l-M.r, ph=H-M.t-M.b;
+  var T=(p.trajectory||[]).filter(function(t){return t.n>0;});
+  if(T.length<2) return '<div class="muted">年度记录不足 2 年,不作图。</div>';
+  var ys=T.map(function(t){return t.year;});
+  var y0=Math.min.apply(null,ys), y1=Math.max.apply(null,ys);
+  var X=function(y){return M.l+(y1===y0?pw/2:((y-y0)/(y1-y0))*pw);};
+  var s='<svg viewBox="0 0 '+W+' '+H+'">';
+  s+='<rect x="'+M.l+'" y="'+M.t+'" width="'+pw+'" height="'+ph+'" fill="#FCFDFF" stroke="#E3E7EE"/>';
+  /* 堆叠面积:每年归一化到 100% */
+  var base={}; T.forEach(function(t){base[t.year]=0;});
+  IDS.forEach(function(k){
+    var up=[],dn=[];
+    T.forEach(function(t){
+      var v=(t.share&&t.share[k])||0;
+      var y_lo=base[t.year], y_hi=y_lo+v;
+      up.push(X(t.year).toFixed(1)+","+(M.t+ph-y_hi*ph).toFixed(1));
+      dn.unshift(X(t.year).toFixed(1)+","+(M.t+ph-y_lo*ph).toFixed(1));
+      base[t.year]=y_hi;
+    });
+    if(up.length) s+='<polygon points="'+up.concat(dn).join(" ")+'" fill="'+COLORS[k]+
+      '" fill-opacity="0.72"><title>'+esc(NAMES[k])+'</title></polygon>';
+  });
+  T.forEach(function(t){
+    s+='<text x="'+X(t.year)+'" y="'+(M.t+ph+15)+'" font-size="10.5" fill="#6B7280" text-anchor="middle">'+
+       t.year+'</text>';
+    s+='<text x="'+X(t.year)+'" y="'+(M.t-2)+'" font-size="9.5" fill="#8892A4" text-anchor="middle">'+
+       t.n+'篇</text>';
+  });
+  s+='<text x="'+(M.l-6)+'" y="'+(M.t+8)+'" font-size="10" fill="#6B7280" text-anchor="end">100%</text>';
+  s+='<text x="'+(M.l-6)+'" y="'+(M.t+ph)+'" font-size="10" fill="#6B7280" text-anchor="end">0</text>';
+  return s+'</svg>';
+}
+function renderDrift(){
+  var list=PIS.filter(function(p){return (p.trajectory||[]).length>=2;})
+    .sort(function(a,b){
+      var da=(a.drift&&a.drift.deg!=null)?a.drift.deg:-1;
+      var db=(b.drift&&b.drift.deg!=null)?b.drift.deg:-1;
+      return db-da;});
+  document.getElementById("driftList").innerHTML=list.map(function(p){
+    var d=p.drift||{};
+    var head='<h3 style="margin:0 0 2px">'+esc(p.display)+
+      (d.deg!=null?' <span class="pill">漂移 '+d.deg+'°</span>'
+                  :' <span class="pill">'+esc(d.note||"不可计算")+'</span>')+'</h3>';
+    var sub='<div class="sub">近 3 年 '+(d.n_recent||0)+' 篇 vs 前 3 年 '+(d.n_older||0)+' 篇';
+    if(d.gained&&d.gained.length&&d.gained[0][1]>0)
+      sub+=' · 增长最快:'+d.gained.filter(function(g){return g[1]>0;}).map(function(g){
+        return esc((NAMES[g[0]]||g[0]).split(/[ /:]/)[0])+' +'+num(g[1],3);}).join("、");
+    sub+='</div>';
+    return '<div class="card" style="margin-bottom:12px">'+head+sub+trajSvg(p)+
+      '<div class="fplab">'+IDS.filter(function(k){
+        return (p.trajectory||[]).some(function(t){return t.share&&t.share[k];});
+      }).map(function(k){
+        return '<span><i style="background:'+COLORS[k]+'"></i>'+esc(NAMES[k])+'</span>';}).join("")+
+      '</div></div>';}).join("")||'<div class="card muted">无足够年度数据。</div>';
+}
+
+/* ============ 两人对比 ============ */
+function cmpCol(p,other){
+  if(!p) return '<div class="card muted">请选择 PI。</div>';
+  var tot=0; IDS.forEach(function(k){tot+=(p.fp[k]||0);});
+  var h='<div class="card"><h3>'+esc(p.display)+'</h3>';
+  h+='<div class="sub">'+esc((p.institutions[0]||{}).name||"单位未解析")+
+     (p.region?' · '+esc(p.region):'')+' · '+p.n_records+' 篇 · 锚定 '+p.n_anchored+'</div>';
+  h+=fpBar(p.fp);
+  h+='<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:10px">';
+  h+='<tr><th style="text-align:left;padding:4px 0;color:var(--dim)">方向</th>'+
+     '<th style="text-align:right;color:var(--dim)">占比</th>'+
+     '<th style="text-align:right;color:var(--dim)">我的权重</th>'+
+     '<th style="text-align:right;color:var(--dim)">重叠</th></tr>';
+  IDS.slice().sort(function(a,b){return (p.fp[b]||0)-(p.fp[a]||0);}).forEach(function(k){
+    var sh=tot>0?(p.fp[k]||0)/tot:0;
+    if(sh<0.01) return;
+    h+='<tr><td style="padding:3px 0"><i style="display:inline-block;width:8px;height:8px;'+
+       'border-radius:2px;background:'+COLORS[k]+';margin-right:5px"></i>'+esc(NAMES[k])+'</td>'+
+       '<td style="text-align:right">'+pct(sh)+'</td>'+
+       '<td style="text-align:right;color:var(--faint)">'+num(MINE[k],2)+'</td>'+
+       '<td style="text-align:right"><b>'+num(sh*(MINE[k]||0),3)+'</b></td></tr>';
+  });
+  h+='</table>';
+  h+='<div class="mets" style="margin-top:10px">'+
+     '<div class="met"><b>'+num(p.competition)+'</b><span>竞争度</span></div>'+
+     (p.complement==null?'<div class="met na"><b>不可测</b><span>互补度</span></div>'
+       :'<div class="met"><b>'+num(p.complement)+'</b><span>互补度</span></div>')+
+     '<div class="met"><b>'+(p.drift&&p.drift.deg!=null?p.drift.deg+'°':'—')+'</b><span>方向漂移</span></div>'+
+     '</div>';
+  /* 与另一人的方法差集 —— 对比视图里最有用的一栏 */
+  if(other){
+    var mine_=(p.methods||[]).map(function(m){return m.m;});
+    var his=(other.methods||[]).map(function(m){return m.m;});
+    var only=mine_.filter(function(m){return his.indexOf(m)<0;});
+    var both=mine_.filter(function(m){return his.indexOf(m)>=0;});
+    h+='<details open><summary>方法对照</summary><div class="ev">'+
+       '<p><b>仅他有('+only.length+'):</b> '+(only.length?only.map(function(m){
+         return '<code>'+esc(m)+'</code>';}).join(" "):'<span class="muted">无</span>')+'</p>'+
+       '<p><b>两人共有('+both.length+'):</b> '+(both.length?both.map(function(m){
+         return '<code>'+esc(m)+'</code>';}).join(" "):'<span class="muted">无</span>')+'</p>'+
+       '<p class="muted">方法来自标题/摘要的词表匹配,只能反映<b>写进摘要的</b>方法 —— 常规手段常被略去,别把"没命中"读成"不会"。</p>'+
+       '</div></details>';
+  }
+  h+='<details><summary>代表作</summary><div class="ev">'+evTop(p)+'</div></details>';
+  h+='<details><summary>同名风险</summary>'+evRisk(p)+'</details>';
+  return h+'</div>';
+}
+function renderCmp(){
+  var a=PIS.filter(function(p){return p.key===document.getElementById("cmpA").value;})[0];
+  var b=PIS.filter(function(p){return p.key===document.getElementById("cmpB").value;})[0];
+  document.getElementById("cmpBox").innerHTML=cmpCol(a,b)+cmpCol(b,a);
+}
+
+/* ============ 排除名单 ============ */
+function renderExcl(){
+  var rd=META.risk_dist||{};
+  document.getElementById("exclNote").innerHTML=
+    '语料里共抽出 <b>'+(META.n_candidates||0)+'</b> 位候选 PI(高风险 '+(rd.high||0)+
+    ' / 中 '+(rd.medium||0)+' / 低 '+(rd.low||0)+')。只有<b>低同名风险</b>的名字进入抓取。'+
+    '下面这些是<b>发文最多但被排除</b>的名字 —— 它们没进榜不是因为不重要,'+
+    '恰恰是因为「Zhang X」这样的姓名串在文献库里对应几十万篇、几百个不同的人,'+
+    '给它做一份"作品集"只会是几百个人的混合体。<b>把它们藏起来才是不诚实的做法。</b>';
+  document.getElementById("exclBox").innerHTML=
+    '<table><tr><th>姓名</th><th>风险</th><th>语料末位</th><th>语料任意位</th><th>为什么排除</th></tr>'+
+    EXCL.map(function(e){
+      return '<tr><td><b>'+esc(e.display)+'</b></td><td><span class="tag r-'+e.risk+'">'+e.risk+
+        '</span></td><td>'+e.n_last+'</td><td>'+e.n_any+'</td><td>'+esc(e.why)+
+        '<br><span class="muted">'+(e.risk_reasons||[]).map(esc).join(";")+'</span></td></tr>';
+    }).join("")+'</table>';
+}
+
+/* ============ 导出 CSV ============ */
+function exportCsv(){
+  var rows=[["姓名","单位","地区","同名风险","风险说明","作品集篇数","锚定篇数","锚定池",
+             "EuropePMC领域内","EuropePMC全库","语料末位","竞争度","互补度","合作可能",
+             "漂移角(度)","主方向","方法","我的备注"]];
+  PIS.filter(pass).sort(function(a,b){return sortKey(b)-sortKey(a);}).forEach(function(p){
+    var tot=0; IDS.forEach(function(k){tot+=(p.fp[k]||0);});
+    var top=tot>0?IDS.slice().sort(function(a,b){return (p.fp[b]||0)-(p.fp[a]||0);})[0]:"";
+    rows.push([p.display,(p.institutions[0]||{}).name||"",p.region||"",p.risk,
+      (p.risk_reasons||[]).join(";"),p.n_records,p.n_anchored,p.anchor_pool,
+      p.epmc_hit_domain,p.epmc_hit_total,p.corpus_n_last,
+      p.competition,p.complement==null?"不可测":p.complement,
+      p.collab==null?"不可测":p.collab,
+      (p.drift&&p.drift.deg!=null)?p.drift.deg:"样本不足",
+      top?NAMES[top]:"",(p.methods||[]).map(function(m){return m.m;}).join(";"),
+      NOTES[p.key]||""]);
+  });
+  var csv="\ufeff"+rows.map(function(r){return r.map(function(c){
+    return '"'+String(c==null?"":c).replace(/"/g,'""')+'"';}).join(",");}).join("\r\n");
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  a.download="PI情报_"+(META.updated||"")+".csv";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+/* ============ 算法与局限 ============ */
+function renderHow(){
+  document.getElementById("howBox").innerHTML=
+  '<div class="ev" style="font-size:13px">'+
+  '<h3>数据从哪来</h3>'+
+  '<ol>'+
+  '<li><b>候选 PI</b> — 取站内 '+(META.corpus_n||0)+' 篇语料每篇的<b>末位作者</b>。'+
+    '末位=通讯作者只是<b>惯例而非事实</b>:共同通讯、按字母排序的作者表、大型联盟文章都会破坏它。'+
+    '所以榜单同时给出「末位次数」和「任意位次数」两个数,由你判断。</li>'+
+  '<li><b>作品集</b> — 用姓名串查 Europe PMC(免 API key、白名单内),并加领域词限制'+
+    '(<code>'+(META.dom_terms||[]).slice(0,6).map(esc).join(" OR ")+'…</code>),'+
+    '否则常见姓名会返回整个医学库。</li>'+
+  '<li><b>方向分</b> — 直接复用文献站 <code>fetch_papers.py</code> 的 <code>score_papers()</code>,'+
+    '与站内文献卡片<b>同一把尺</b>:同一篇文章在两处应给出同一个分,可交叉核验。</li>'+
+  '</ol>'+
+
+  '<h3>同名消歧:这是本站最大的软肋,不藏着</h3>'+
+  '<p>Europe PMC 的作者检索是<b>字符串匹配</b>,没有作者唯一标识。「Zhang X」在全库命中约 24 万篇 —— '+
+    '那是几百个不同的人。本站用四条独立证据给每个名字定级(同姓缩写种类数、名缩写位数、'+
+    '跨机构出现数、方向向量离散度),<b>只抓低风险名字</b>,并把被排除的高发文名字'+
+    '单列一页公示。</p>'+
+  '<p><b>合作者锚定</b>是第二道:一条记录的作者表里若出现语料中已知的合作者,才标「已锚定」。'+
+    '这里踩过一个坑值得写下来 —— 第一版拿<b>全部</b>合作者做锚点,结果 Wang Y 的锚定率(58%)'+
+    '反而高过 Bartel DP(24%)。原因是常见姓名的合作者也是常见姓名,到处都能匹配上,'+
+    '锚定的是<b>姓名串</b>而不是人。改成只用「可区分合作者」(姓氏在语料中缩写种类 &lt;6、'+
+    '且名缩写 ≥2 字母)后,该锚不上的名字锚定池直接归零 —— 这才是正确行为。</p>'+
+  '<p class="muted">因此:<b>未锚定 ≠ 不是本人</b>,只是没有独立证据;'+
+    '<b>锚定率低 ≠ 数据差</b>,资深 PI 若语料只收了他几篇,已知合作者本来就少。</p>'+
+
+  '<h3>三项指标的分子分母</h3>'+
+  '<table><tr><th>指标</th><th>定义</th><th>刻意的取舍</th></tr>'+
+  '<tr><td>竞争度</td><td>PI 方向指纹与你 interests.json 权重向量的余弦</td>'+
+    '<td>用余弦而非欧氏距离,使高产 PI 不因篇数多而自动"更竞争"</td></tr>'+
+  '<tr><td>互补度</td><td>他掌握、而语料稀缺的方法数 / 他检出的方法总数</td>'+
+    '<td>稀缺阈值取语料方法词频<b>中位数</b>('+num(META.rarity_cut,4)+'),不是固定 5%。'+
+    '实测语料 110 个方法词里 97% 都低于 5%,用 5% 等于"人人互补",没有区分力</td></tr>'+
+  '<tr><td>合作可能</td><td>互补度 × 竞争惩罚</td>'+
+    '<td>乘性而非加权和:竞争度 &gt;0.55 起压分、&gt;0.90 归零 —— 方向高度重叠在现实里是抢课题</td></tr>'+
+  '</table>'+
+  '<p><b>样本护栏:</b>检出方法少于 '+(META.min_methods_for_complement||4)+
+    ' 个时,互补度与合作可能一律显示「不可测」而非给分。只检出 1 个方法且它恰好稀缺 → 1/1 = 满分,'+
+    '那是<b>没测到</b>,不是高度互补。漂移角同理:近 3 年与前 3 年任一侧不足 3 篇就不计算。</p>'+
+
+  '<h3>已知局限(逐条)</h3>'+
+  '<ul>'+
+  '<li><b>无作者唯一标识</b> — 没有 ORCID/OpenAlex author ID。OpenAlex 需 API key,'+
+    '本会话未获授权,因此完全未使用;Google Scholar 无官方 API 且抓取违反其条款,也未使用。</li>'+
+  '<li><b>单位只有第一作者的</b> — 语料每篇仅存一条单位串,通常属第一作者;'+
+    '所以 PI 的"单位"是<b>推断</b>,不是他本人申报的。</li>'+
+  '<li><b>方法词表匹配</b> — 只覆盖写进标题/摘要的方法。常规手段(如 western blot)常被略去,'+
+    '"没命中"不等于"不会"。</li>'+
+  '<li><b>期刊层级是代理指标</b> — 用刊名规则分层,<b>不是</b> JCR 影响因子(Clarivate 版权数据,无免费接口)。</li>'+
+  '<li><b>语料本身有取向</b> — 候选 PI 只来自本站按你的方向抓取的文献,'+
+    '做相关工作但未被这套关键词命中的 PI 不会出现。这是<b>方向内的地图,不是全领域名录</b>。</li>'+
+  '<li><b>竞争度衡量的是"写得像"</b> — 词表与方向权重的重合度,不代表科学上真的在抢同一个问题。</li>'+
+  '</ul>'+
+
+  '<h3>不做什么</h3>'+
+  '<p>不调用任何大语言模型生成"研究方向分析"。那种文字读起来很顺,但每一句都无法回溯到具体哪篇文章 —— '+
+    '与本站(以及文献站)的离线可核验原则冲突。页面上每个数字都能在 <code>scripts/</code> 里'+
+    '找到产生它的那几行代码,并且用同一份数据重跑能得到同一个值。</p>'+
+  '</div>';
+}
+
+/* ============ 装配 ============ */
+function fillSelects(){
+  var d=document.getElementById("dirSel");
+  IDS.forEach(function(k){
+    var n=PIS.filter(function(p){
+      var t=0; IDS.forEach(function(j){t+=(p.fp[j]||0);});
+      return t>0 && (p.fp[k]||0)/t>=0.15;}).length;
+    d.insertAdjacentHTML("beforeend",'<option value="'+esc(k)+'">'+esc(NAMES[k])+' ('+n+')</option>');
+  });
+  var regs={};
+  PIS.forEach(function(p){if(p.region) regs[p.region]=(regs[p.region]||0)+1;});
+  var r=document.getElementById("regSel");
+  Object.keys(regs).sort(function(a,b){return regs[b]-regs[a];}).forEach(function(k){
+    r.insertAdjacentHTML("beforeend",'<option value="'+esc(k)+'">'+esc(k)+' ('+regs[k]+')</option>');});
+  var opts=PIS.map(function(p){
+    return '<option value="'+esc(p.key)+'">'+esc(p.display)+' ('+p.n_records+' 篇)</option>';}).join("");
+  document.getElementById("cmpA").innerHTML=opts;
+  document.getElementById("cmpB").innerHTML=opts;
+  if(PIS.length>1) document.getElementById("cmpB").selectedIndex=1;
+}
+function wire(){
+  Array.prototype.forEach.call(document.querySelectorAll("nav button"),function(b){
+    b.onclick=function(){
+      Array.prototype.forEach.call(document.querySelectorAll("nav button"),function(x){
+        x.classList.remove("on");});
+      Array.prototype.forEach.call(document.querySelectorAll(".panel"),function(x){
+        x.classList.remove("on");});
+      b.classList.add("on");
+      document.getElementById("p-"+b.getAttribute("data-p")).classList.add("on");
+    };});
+  document.getElementById("q").oninput=function(){F.q=this.value.trim();renderBoard();};
+  document.getElementById("sortSel").onchange=function(){F.sort=this.value;renderBoard();};
+  document.getElementById("dirSel").onchange=function(){F.dir=this.value;renderBoard();};
+  document.getElementById("regSel").onchange=function(){F.reg=this.value;renderBoard();};
+  document.getElementById("cAnch").onclick=function(){
+    F.anch=!F.anch;this.classList.toggle("on");renderBoard();};
+  document.getElementById("cMeas").onclick=function(){
+    F.meas=!F.meas;this.classList.toggle("on");renderBoard();};
+  document.getElementById("expCsv").onclick=exportCsv;
+  document.getElementById("cmpA").onchange=renderCmp;
+  document.getElementById("cmpB").onchange=renderCmp;
+}
+function boot(d){
+  META=d.meta||{}; PIS=d.pis||[]; EXCL=d.excluded||[];
+  IDS=META.int_ids||[]; NAMES=META.int_names||{}; COLORS=META.int_colors||{};
+  MINE=META.my_vector||{};
+  try{NOTES=JSON.parse(localStorage.getItem("pi_notes")||"{}");}catch(e){NOTES={};}
+  document.getElementById("hCorpus").textContent=META.corpus_n||"—";
+  document.getElementById("hPI").textContent=PIS.length;
+  document.getElementById("hExcl").textContent=(META.risk_dist||{}).high!=null
+    ? ((META.risk_dist.high||0)+(META.risk_dist.medium||0)) : EXCL.length;
+  document.getElementById("hRec").textContent=PIS.reduce(function(a,p){return a+p.n_records;},0);
+  document.getElementById("hUpd").textContent=META.updated||"—";
+  document.getElementById("fUpd").textContent="数据更新 "+(META.updated||"—")+
+    ",共 "+PIS.length+" 位 PI。";
+  var anch=PIS.filter(function(p){return p.n_anchored>0;}).length;
+  var meas=PIS.filter(function(p){return p.complement!=null;}).length;
+  document.getElementById("riskNote").innerHTML=
+    '榜单里 <b>'+PIS.length+'</b> 位 PI <b>全部是低同名风险</b>的名字 —— 不是因为语料里只有这些人,'+
+    '而是因为高风险姓名串(Zhang X、Li Y 这类)无法归属到个人,已被<b>刻意排除</b>并单列在'+
+    '「⚠️ 同名排除名单」页。其中 <b>'+anch+'</b> 位有合作者锚定证据,<b>'+meas+
+    '</b> 位方法样本足够算互补度。<b>没有锚定证据的 PI,其作品集可能混入同名者,指纹请谨慎采信。</b>';
+  fillSelects(); wire(); renderBoard(); renderQuad(); renderDrift(); renderCmp();
+  renderExcl(); renderHow();
+}
+fetch("data/pis.json?_="+Date.now()).then(function(r){return r.json();}).then(boot)
+  .catch(function(e){
+    document.getElementById("board").innerHTML=
+      '<div class="card">数据加载失败:'+esc(e&&e.message)+
+      '<br><span class="muted">若在本地打开文件,请用 <code>python3 -m http.server</code> 起一个本地服务。</span></div>';});
+</script>
+</body>
+</html>
