@@ -15,6 +15,12 @@ body{margin:0;background:var(--bg);color:var(--ink);
   font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
 a{color:var(--ampk);text-decoration:none}
 a:hover{text-decoration:underline}
+/* 平台统一导航(与 pi-grants 一致) */
+.plat{background:#1A2530;border-bottom:1px solid #33414f}
+.plat .in{max-width:1280px;margin:0 auto;padding:0 18px;display:flex;gap:2px;flex-wrap:wrap}
+.plat a{color:#B8C4D0;text-decoration:none;font-size:12.8px;font-weight:700;padding:9px 13px;border-bottom:3px solid transparent}
+.plat a:hover{color:#fff;background:rgba(255,255,255,.06)}
+.plat a.on{color:#fff;border-bottom-color:#E6A817}
 header{background:linear-gradient(135deg,#4A148C,#0D47A1);color:#fff;padding:26px 20px 22px}
 .wrap{max-width:1280px;margin:0 auto;padding:0 20px}
 header h1{margin:0 0 6px;font-size:22px;letter-spacing:.3px}
@@ -86,6 +92,17 @@ footer{border-top:1px solid var(--line);padding:18px 0;color:var(--faint);font-s
 </style>
 </head>
 <body>
+<!-- 平台统一导航(两站一致);跨站项是普通外链,带 ?p= 直接落到对应面板 -->
+<nav class="plat"><div class="in">
+  <a href="https://zouxdsheldon.github.io/pi-grants/">🏠 工具首页</a>
+  <a href="https://zouxdsheldon.github.io/pi-grants/?p=live">💰 找资助</a>
+  <a href="https://zouxdsheldon.github.io/pi-grants/?p=jobs">🎓 找职位</a>
+  <a href="https://zouxdsheldon.github.io/pi-grants/?p=papers">📚 读文献</a>
+  <a href="https://zouxdsheldon.github.io/pi-grants/?p=journals">📖 选期刊</a>
+  <a href="https://zouxdsheldon.github.io/pi-grants/?p=writing">✍️ 写本子</a>
+  <a href="#" class="on">🧭 PI 情报</a>
+</div></nav>
+
 <header>
   <div class="wrap">
     <h1>🧭 PI 情报 · 谁在做我的方向</h1>
